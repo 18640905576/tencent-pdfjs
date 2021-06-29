@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>测试附件</title>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+    </body>
+</html>
+<script>
+    window.onload = () => {
+        // 获取页面的用户名和预览链接
+        const {userName, fileUrl} = getLocationSearch()
+        // fileUrl = 'https%3A%2F%2Fbackend-api-test.txyy.tencent.com%2Fop%2Fview.aspx%3Fsrc%3Dhttps%3A%2F%2Fbackend-api-test.txyy.tencent.com%2Fapi%2Fv1%2Ffile-mgmt%2Fscan-download%2F202011%2Fcos-2a8f30bc4df14efaaf8d4e1a368c0ab8.xls%3Fname%3Dmeadema'
+        // fileUrl = 'https%3A%2F%2Fbackend-api-test.txyy.tencent.com%2Fapi%2Fv1%2Ffile-mgmt%2Fscan-download%2F202011%2Fcos-5eb4c3d3b8a641a3a35865e6000a5284.pdf%3Fname%3Dmeadema'
+        // 创建页面水印
+        createWatermark(userName)
+        // if (/\.pdf/.test(fileUrl)) {
+            // 创建pdf的a标签并且点击
+            // setPdfLink(fileUrl)
+            // todo pdf用pdf.js预览，设置预览路径
+            // fileUrl = './pdf/web/viewer.html';
+        // }
+        setIframe(decodeURIComponent(fileUrl))
+    }
+    function getLocationSearch() {
+        if (!location.search) {
+            return
+        }
+        let searchObj = {}
+        location.search.substring(1).split('&').forEach(s => {
+            const key = s.split('=')[0]
+            const value = s.split('=')[1]
+            searchObj[key] = value
+        })
+        return searchObj
+    }
+
+    function createWatermark (text, colNum = 2, rowNum = 5){
+        // <div class="watermark-mask">
+        //     <div class='watermark-col' :style="{width: 100 / colNum + '%'}" v-for="(item, i) in rows" :key="i">
+        //     <div class='watermark-row' v-for="(elem, j) in cols" :key="j">{{text}}</div>
+        //     </div>
+        // </div>
+        // 水印框架
+        const container = document.createElement('div')
+        container.setAttribute('class', 'watermark-mask')
+        for(let i = 0; i < colNum; i++) {
+            // 设置行水印
+            const col = document.createElement('div')
+            col.setAttribute('class', 'watermark-col')
+            for (let j = 0; j< rowNum; j++) {
+                // 设置列水印
+                const row = document.createElement('div')
+                row.setAttribute('class', 'watermark-row')
+                // 水印文字
+                row.innerHTML = text
+                // 列水印加入行
+                col.appendChild(row)
+            }
+            // 行水印加入框架
+            container.appendChild(col)
+        }
+        // 把水印加入页面
+        document.body.appendChild(container);
+    }
+    // function setPdfLink (fileUrl) {
+    //     // <a href="test.pdf"></a>
+    //     // 创建链接
+    //     const link = document.createElement('a')
+    //     link.setAttribute('href', decodeURIComponent(fileUrl))
+    //     // 链接加入页面
+    //     document.body.appendChild(link);
+    //     // 模拟点击
+    //     link.click()
+    // }
+    /**
+    * 设置iframe链接，并且加入页面
+    */
+    function setIframe(fileUrl) {
+        // <iframe src="https://backend-api-test.txyy.tencent.com/op/view.aspx?src=https%3A%2F%2Fbackend-api-test.txyy.tencent.com%2Fapi%2Fv1%2Ffile-mgmt%2Fscan-download%2F202011%2Fcos-5eb4c3d3b8a641a3a35865e6000a5284.pdf%3Fname%3Dmeadema" frameborder="0" style="width: 100%;height: 500px;"></iframe>
+        const iframe = document.createElement('iframe')
+        iframe.setAttribute('src', `./web/viewer.html?file=${encodeURIComponent(fileUrl)}`)
+        iframe.style.width = '100%'
+        iframe.style.height = window.innerHeight + 'px'
+        // 链接加入页面
+        document.body.appendChild(iframe);
+    }
+</script>
+<style>
+    .watermark-mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      pointer-events: none;
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      z-index: 9999;
+      font-size: 4em;
+    }
+    
+    .watermark-col{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 50%;
+    }
+    .watermark-row{
+      transform: rotate(-45deg);
+      color: rgba(0, 0, 0, 0.06);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 460px;
+    }
+    </style>
